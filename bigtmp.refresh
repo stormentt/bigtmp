@@ -1,0 +1,4 @@
+#!/bin/bash
+
+/usr/local/bin/bigtmp.umount
+/usr/local/bin/bigtmp.mount

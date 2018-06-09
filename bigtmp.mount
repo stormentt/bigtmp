@@ -1,0 +1,36 @@
+#!/bin/bash
+
+source /etc/bigtmp.env
+
+if [ -z "${BIGTMP_PART}" ]; then
+    echo "BIGTMP_PART not set"
+    exit 1
+fi
+
+if [ -z "${BIGTMP_USERS}" ]; then
+    echo "BIGTMP_USERS not set"
+    exit 1
+fi
+
+if grep -qs "/bigtmp" /proc/mounts; then
+    echo "bigtmp already mounted"
+    exit 1
+fi
+
+mkdir -p /bigtmp
+
+cryptsetup plainOpen --key-file /dev/urandom "${BIGTMP_PART}" crBigTmp
+mkfs.ext4 -F -F /dev/mapper/crBigTmp
+mount /dev/mapper/crBigTmp /bigtmp
+
+for i in ${BIGTMP_USERS[@]}; do
+    mkdir -p "/bigtmp/${i}/Downloads"
+    mkdir -p "/bigtmp/${i}/tmp"
+
+    chown -R "${i}:${i}" "/bigtmp/${i}"
+    find "/bigtmp/${i}" -type d -exec chmod 700 {} \;
+done
+
+mkdir -p /bigtmp/shared
+#1777 for the restricted deletion bit and rwx for all
+chmod 1777 /bigtmp/shared
