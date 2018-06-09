@@ -1,0 +1,13 @@
+[Unit]
+Description=Big temporary file system at /bigtmp
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+
+ExecStart=/usr/local/bin/bigtmp.mount
+ExecReload=/usr/local/bin/bigtmp.refresh
+ExecStop=/usr/local/bin/bigtmp.umount
+
+[Install]
+WantedBy=multi-user.target
